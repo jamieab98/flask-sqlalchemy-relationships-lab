@@ -39,13 +39,22 @@ def get_event_sessions(id):
 
 @app.route('/speakers')
 def get_speakers():
-    pass
-
+    speakers = Speaker.query.all()
+    speaker_list = []
+    for speaker in speakers:
+        speaker_dict = {'id': speaker.id, 'name': speaker.name}
+        speaker_list.append(speaker_dict)
+    return jsonify(speaker_list), 200
 
 @app.route('/speakers/<int:id>')
 def get_speaker(id):
-    pass
-
+    speaker = Speaker.query.filter_by(id=id).first()
+    if speaker is None:
+        return jsonify({"error": "Speaker not found"}), 404
+    speaker_bio = speaker.bio.bio_text
+    if speaker.bio is None or speaker.bio.bio_text == "":
+        speaker.bio = "No bio available"
+    return jsonify({'id': speaker.id, 'name': speaker.name, 'bio_text': speaker_bio})
 
 @app.route('/sessions/<int:id>/speakers')
 def get_session_speakers(id):

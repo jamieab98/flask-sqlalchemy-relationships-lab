@@ -51,15 +51,27 @@ def get_speaker(id):
     speaker = Speaker.query.filter_by(id=id).first()
     if speaker is None:
         return jsonify({"error": "Speaker not found"}), 404
-    speaker_bio = speaker.bio.bio_text
     if speaker.bio is None or speaker.bio.bio_text == "":
-        speaker.bio = "No bio available"
+        speaker_bio = "No bio available"
+    else:
+        speaker_bio = speaker.bio.bio_text
     return jsonify({'id': speaker.id, 'name': speaker.name, 'bio_text': speaker_bio})
 
 @app.route('/sessions/<int:id>/speakers')
 def get_session_speakers(id):
-    pass
-
+    session = Session.query.filter_by(id=id).first()
+    if session is None:
+        return jsonify({'error': 'Session not found'}), 404
+    speakers = session.speakers
+    speaker_list = []
+    for speaker in speakers:
+        if speaker.bio is None or speaker.bio.bio_text == "":
+            speaker_bio = "No bio available"
+        else:
+            speaker_bio = speaker.bio.bio_text
+        speaker_dict = {'id': speaker.id, 'name': speaker.name, 'bio_text': speaker_bio}
+        speaker_list.append(speaker_dict)
+    return jsonify(speaker_list), 200
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

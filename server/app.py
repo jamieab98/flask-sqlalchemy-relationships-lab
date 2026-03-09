@@ -18,13 +18,24 @@ db.init_app(app)
 
 @app.route('/events')
 def get_events():
-    pass
-
+    events = Event.query.all()
+    events_list = []
+    for event in events:
+        event_dict = {'id': event.id, 'name': event.name, 'location': event.location}
+        events_list.append(event_dict)
+    return jsonify(events_list),200
 
 @app.route('/events/<int:id>/sessions')
 def get_event_sessions(id):
-    pass
-
+    event = Event.query.filter_by(id=id).first()
+    if event is None:
+        return jsonify({'error': "Event not found"}), 404
+    sessions = event.sessions
+    sessions_list = []
+    for session in sessions:
+        session_dict = {'id': session.id, 'title': session.title, 'start_time': session.start_time.isoformat()}
+        sessions_list.append(session_dict)
+    return jsonify(sessions_list), 200
 
 @app.route('/speakers')
 def get_speakers():
